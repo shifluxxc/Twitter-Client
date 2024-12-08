@@ -1,4 +1,3 @@
-import { BiSolidShoppingBags } from "react-icons/bi";
 import { BsTwitter } from "react-icons/bs";
 import { CiBookmark, CiCircleMore, CiSearch } from "react-icons/ci";
 import { IoIosHome, IoMdNotificationsOutline } from "react-icons/io";
@@ -6,6 +5,13 @@ import {  IoPersonOutline } from "react-icons/io5";
 import { MdOutlineEmail } from "react-icons/md";
 import { Inter } from "next/font/google";  
 import { FeedCard } from "@/components/feedcard";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { useCallback } from "react";
+import toast from "react-hot-toast";
+import { graphqlClient } from "@/clients/api";
+import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
+import { useCurrentUser } from "@/hooks/user";
+import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] }); 
 interface TwitterSideBarButton {
@@ -50,14 +56,49 @@ const sideBarMenuItems: TwitterSideBarButton[] = [
 ];
 
 export default function Home() {
+
+  const { user } = useCurrentUser(); 
+
+  console.log(user); 
+  const handleLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
+    const googleToken = cred.credential;
+    console.log(googleToken);
+    if (!googleToken) {
+      return toast.error('Google Token not found.');
+    }
+  
+    try {
+      const response = await graphqlClient.request(
+        verifyUserGoogleTokenQuery,
+        { token: googleToken }
+      );
+  
+      const { verifyGoogleToken } = response;
+  
+  
+      if (verifyGoogleToken)
+      {
+      console.log(verifyGoogleToken); // Debug the token value here
+        window.localStorage.setItem("twitter_token", verifyGoogleToken);
+        console.log(window.localStorage.getItem("twitter_token")); 
+        toast.success("Verified successfully!");
+      } else {
+        toast.error("Token verification failed. Server returned null.");
+      }
+    } catch (error) {
+      console.error("Error verifying Google token:", error);
+      toast.error("An error occurred while verifying the token.");
+    }
+  }, []);
+
   return (
-    <div  className={inter.className}>
-      <div className="grid grid-cols-12 h-screen w-screen px-56">
-        <div className="col-span-3 border-r-[1px] border-slate-200">
-          <div className="h-fit w-fit text-3xl rounded-full hover:bg-slate-900 p-2 transition-all">
+
+    <div className="grid grid-cols-12">
+    <aside className="h-screen sticky top-0 col-span-2">
+    <div className="h-fit w-fit text-3xl rounded-full hover:bg-slate-900 p-2 transition-all ml-5">
             <BsTwitter />
           </div>
-          <div className="mt-5 text-[20px]">
+          <div className="mt-5 text-[20px] ml-5">
             <ul className="py-2">
               {sideBarMenuItems.map((item) => (
                 <li
@@ -73,15 +114,41 @@ export default function Home() {
               <button className="p-1"> Post </button>
             </div>
           </div>
+          <div className="grid grid-cols-4 bg-gray-800 w-[14rem] rounded-full mt-[12rem] ">
+            <div className="col-span-1 p-3 ">
+              {
+                user && user.profileImageURL && <Image className="rounded-full" src={user?.profileImageURL} alt="X" height={50} width={50} />
+            }
+          </div>
+          <div className="col-span-3 flex justify-center items-center text-md text-gray-500">
+            {user && <p>{user.firstName} { user.lastName}</p>}
+            </div>
         </div>
-        <div className="col-span-6 ">
+    </aside>
+    
+    <main className="col-span-6 border border-r-[1px] border-gray-400">
+       <div >
           <FeedCard />
           <FeedCard />
           <FeedCard />
           <FeedCard/>
         </div>
-        <div className="col-span-3 border-l-[1px] border-white"></div>
-      </div>
+    
+      </main>
+      <aside className="h-screen sticky top-0 col-span-3">
+      <div className=" border-l-[1px] p-5 ">
+          { (
+                  <div className="bg-slate-900 p-5 flex flex-col items-start space-y-4 runded-full">
+                  <h2 className="text-[20px] font-semibold">New To Twitter ?</h2>
+                  <GoogleLogin onSuccess={handleLoginWithGoogle}></GoogleLogin>
+                    </div>
+            )
+          }
+        </div>
+      </aside>
     </div>
+
+
+
   );
 }
