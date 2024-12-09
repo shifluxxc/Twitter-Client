@@ -23,8 +23,8 @@ export const FeedCard: React.FC = () => {
   return (
     <div className='grid grid-cols-12 border border-gray-600 border-b-0 border-x-0 p-4'>
       <div className='col-span-2 '>
-        <div className='rounded-full flex justify-center'>
-          <Image src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?ga=GA1.1.168627212.1728123923&semt=ais_hybrid" alt="this" width={50} height={50} />
+        <div className='flex justify-center'>
+          <Image src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?ga=GA1.1.168627212.1728123923&semt=ais_hybrid" alt="this" width={50} height={50} className='rounded-full' />
         </div>
       </div>
       <div className='col-span-10'>

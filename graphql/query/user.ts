@@ -1,14 +1,11 @@
 import { graphql } from "../../gql"; // Adjust the path if needed
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
-
 // GraphQL query to verify the Google token
 export const verifyUserGoogleTokenQuery = graphql(`#graphql 
     query VerifyUserGoogleToken($token: String!) {
         verifyGoogleToken(token: $token)
     }
 `);
-
-
 export interface GetCurrentUserResponse {
     getCurrentUser: {
       id: string;

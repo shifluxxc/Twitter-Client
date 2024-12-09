@@ -2,7 +2,7 @@ import { BsTwitter } from "react-icons/bs";
 import { CiBookmark, CiCircleMore, CiSearch } from "react-icons/ci";
 import { IoIosHome, IoMdNotificationsOutline } from "react-icons/io";
 import {  IoPersonOutline } from "react-icons/io5";
-import { MdOutlineEmail } from "react-icons/md";
+import { MdImageSearch, MdOutlineEmail } from "react-icons/md";
 import { Inter } from "next/font/google";  
 import { FeedCard } from "@/components/feedcard";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
@@ -59,7 +59,6 @@ export default function Home() {
 
   const { user } = useCurrentUser(); 
 
-  console.log(user); 
   const handleLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
     const googleToken = cred.credential;
     console.log(googleToken);
@@ -90,6 +89,15 @@ export default function Home() {
       toast.error("An error occurred while verifying the token.");
     }
   }, []);
+
+
+  const handleSelectImage = useCallback(() => {
+    const input = document.createElement("input"); 
+    input.setAttribute('type', 'file'); 
+    input.setAttribute('accept', 'image/*');; 
+    input.click();
+  }, []);
+  
 
   return (
 
@@ -126,7 +134,25 @@ export default function Home() {
         </div>
     </aside>
     
-    <main className="col-span-6 border border-r-[1px] border-gray-400">
+      <main className="col-span-6 border border-r-[1px] border-gray-400">
+        <div className='grid grid-cols-12 border border-gray-600 border-b-0 border-x-0 p-4'>
+          <div className='col-span-2 '>
+          {user?.profileImageURL && <div className='flex justify-center'>
+          <Image src={user?.profileImageURL} alt="this" width={50} height={50} className="rounded-full" />
+        </div>}
+          </div>
+          <div className="col-span-10">
+            <textarea placeholder="What's Happening" className="w-full bg-transparent border-b border-gray-700" rows={4}></textarea>
+            <div className="flex justify-between items-center cursor-pointer">
+              <MdImageSearch className="text-xl" onClick={handleSelectImage}/>
+              <div className="rounded-full px-4 py-1 h-7 bg-blue-500 text-sm flex items-center">
+              <button className="p-1"> Post </button>
+            </div>
+            </div>
+            
+          </div>
+          
+          </div>
        <div >
           <FeedCard />
           <FeedCard />
