@@ -6,12 +6,15 @@ import { MdImageSearch, MdOutlineEmail } from "react-icons/md";
 import { Inter } from "next/font/google";  
 import { FeedCard } from "@/components/feedcard";
 import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import { graphqlClient } from "@/clients/api";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { useCurrentUser } from "@/hooks/user";
 import Image from "next/image";
+import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
+import { Tweet } from "@/gql/graphql";
+import { fromJSON } from "postcss";
 
 const inter = Inter({ subsets: ["latin"] }); 
 interface TwitterSideBarButton {
@@ -57,7 +60,11 @@ const sideBarMenuItems: TwitterSideBarButton[] = [
 
 export default function Home() {
 
-  const { user } = useCurrentUser(); 
+  const { user } = useCurrentUser();
+  const { tweets = [] } = useGetAllTweets();
+  const { mutate } = useCreateTweet();
+
+  const [content, setContent] = useState(''); 
 
   const handleLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
     const googleToken = cred.credential;
@@ -98,15 +105,21 @@ export default function Home() {
     input.click();
   }, []);
   
+  const handleCreateTweet = useCallback(() => {
+    mutate({
+      content 
+    })
+   }, [content , mutate]); 
 
   return (
 
     <div className="grid grid-cols-12">
-    <aside className="h-screen sticky top-0 col-span-2">
-    <div className="h-fit w-fit text-3xl rounded-full hover:bg-slate-900 p-2 transition-all ml-5">
+      <aside className="h-screen sticky top-0 col-span-1"></aside>
+    <aside className="h-screen sticky top-0 col-span-2 ">
+    <div className="h-fit w-fit text-3xl rounded-full hover:bg-slate-900 p-2 transition-all ">
             <BsTwitter />
           </div>
-          <div className="mt-5 text-[20px] ml-5">
+          <div className="mt-5 text-[20px] flex flex-col align-top ">
             <ul className="py-2">
               {sideBarMenuItems.map((item) => (
                 <li
@@ -142,22 +155,21 @@ export default function Home() {
         </div>}
           </div>
           <div className="col-span-10">
-            <textarea placeholder="What's Happening" className="w-full bg-transparent border-b border-gray-700" rows={4}></textarea>
+            <textarea value= {content} onChange={e => setContent(e.target.value)} placeholder="What's Happening" className="w-full bg-transparent border-b border-gray-700" rows={4}></textarea>
             <div className="flex justify-between items-center cursor-pointer">
               <MdImageSearch className="text-xl" onClick={handleSelectImage}/>
               <div className="rounded-full px-4 py-1 h-7 bg-blue-500 text-sm flex items-center">
-              <button className="p-1"> Post </button>
+              <button className="p-1" onClick={handleCreateTweet}> Post </button>
             </div>
             </div>
             
           </div>
           
           </div>
-       <div >
-          <FeedCard />
-          <FeedCard />
-          <FeedCard />
-          <FeedCard/>
+        <div >
+          { 
+           tweets?.map((tweet : Tweet)  => tweet ?  <FeedCard key={tweet.id} data={tweet} /> : null) 
+          }
         </div>
     
       </main>
