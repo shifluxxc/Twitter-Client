@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
 import { Tweet } from "@/gql/graphql";
 import { fromJSON } from "postcss";
+import TwitterLayout from "@/Layout/twitterLayout";
 
 const inter = Inter({ subsets: ["latin"] }); 
 interface TwitterSideBarButton {
@@ -113,41 +114,7 @@ export default function Home() {
 
   return (
 
-    <div className="grid grid-cols-12">
-      <aside className="h-screen sticky top-0 col-span-1"></aside>
-    <aside className="h-screen sticky top-0 col-span-2 ">
-    <div className="h-fit w-fit text-3xl rounded-full hover:bg-slate-900 p-2 transition-all ">
-            <BsTwitter />
-          </div>
-          <div className="mt-5 text-[20px] flex flex-col align-top ">
-            <ul className="py-2">
-              {sideBarMenuItems.map((item) => (
-                <li
-                  key={item.title}
-                  className="flex justify-start w-fit items-center gap-5 pr-4 py-2 hover:bg-gray-900 rounded-full transition"
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="mr-2 hover:font-semibold cursor-pointer">{item.title}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="rounded-full bg-blue-500 text-center mr-12 mt-7">
-              <button className="p-1"> Post </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-4 bg-gray-800 w-[14rem] rounded-full mt-[12rem] ">
-            <div className="col-span-1 p-3 ">
-              {
-                user && user.profileImageURL && <Image className="rounded-full" src={user?.profileImageURL} alt="X" height={50} width={50} />
-            }
-          </div>
-          <div className="col-span-3 flex justify-center items-center text-md text-gray-500">
-            {user && <p>{user.firstName} { user.lastName}</p>}
-            </div>
-        </div>
-    </aside>
-    
-      <main className="col-span-6 border border-r-[1px] border-gray-400">
+    <TwitterLayout>
         <div className='grid grid-cols-12 border border-gray-600 border-b-0 border-x-0 p-4'>
           <div className='col-span-2 '>
           {user?.profileImageURL && <div className='flex justify-center'>
@@ -170,21 +137,8 @@ export default function Home() {
           { 
            tweets?.map((tweet : Tweet)  => tweet ?  <FeedCard key={tweet.id} data={tweet} /> : null) 
           }
-        </div>
-    
-      </main>
-      <aside className="h-screen sticky top-0 col-span-3">
-      <div className=" border-l-[1px] p-5 ">
-          { (
-                  <div className="bg-slate-900 p-5 flex flex-col items-start space-y-4 runded-full">
-                  <h2 className="text-[20px] font-semibold">New To Twitter ?</h2>
-                  <GoogleLogin onSuccess={handleLoginWithGoogle}></GoogleLogin>
-                    </div>
-            )
-          }
-        </div>
-      </aside>
-    </div>
+      </div>
+      </TwitterLayout>
 
 
 
