@@ -6,6 +6,7 @@ import { BiRepost } from 'react-icons/bi'
 import { IoShareOutline } from 'react-icons/io5'
 import { IoIosMore } from 'react-icons/io'
 import { Tweet } from '@/gql/graphql'
+import Link from 'next/link'
 
 interface ActivityInterface {
   icon: React.ReactNode, 
@@ -38,7 +39,7 @@ export const FeedCard: React.FC<FeedCardProps> = (props) => {
       <div className='col-span-10'>
         <div className='grid grid-cols-10'>
           <div className='col-span-9'>
-            <div className='font-semibold text-[16px]'>{data.author?.firstName} {data.author?.lastName }</div>
+            <Link href = {`/${data.author?.id}`}  className='font-semibold text-[16px]'>{data.author?.firstName} {data.author?.lastName }</Link>
             <p className='pt-1'>{ data.content}</p>    
           </div>
           <div className='col-span-1 flex items-center justify-center'>

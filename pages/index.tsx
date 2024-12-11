@@ -1,4 +1,3 @@
-import { BsTwitter } from "react-icons/bs";
 import { CiBookmark, CiCircleMore, CiSearch } from "react-icons/ci";
 import { IoIosHome, IoMdNotificationsOutline } from "react-icons/io";
 import {  IoPersonOutline } from "react-icons/io5";
@@ -14,8 +13,9 @@ import { useCurrentUser } from "@/hooks/user";
 import Image from "next/image";
 import { useCreateTweet, useGetAllTweets } from "@/hooks/tweet";
 import { Tweet } from "@/gql/graphql";
-import { fromJSON } from "postcss";
-import TwitterLayout from "@/Layout/twitterLayout";
+import TwitterLayout from "@/pages/twitterLayout";
+import { GetServerSideProps } from "next";
+import { getAllTweetQuery, GetAllTweets } from "@/graphql/query/tweet";
 
 const inter = Inter({ subsets: ["latin"] }); 
 interface TwitterSideBarButton {
@@ -23,6 +23,10 @@ interface TwitterSideBarButton {
   icon: React.ReactNode;
 }
 
+
+ interface HomeProps {
+  tweets: Tweet[] ,
+}
 const sideBarMenuItems: TwitterSideBarButton[] = [
   {
     title: "Home",
@@ -59,45 +63,12 @@ const sideBarMenuItems: TwitterSideBarButton[] = [
 
 ];
 
-export default function Home() {
+export default function Home(props : HomeProps) {
 
   const { user } = useCurrentUser();
-  const { tweets = [] } = useGetAllTweets();
   const { mutate } = useCreateTweet();
 
   const [content, setContent] = useState(''); 
-
-  const handleLoginWithGoogle = useCallback(async (cred: CredentialResponse) => {
-    const googleToken = cred.credential;
-    console.log(googleToken);
-    if (!googleToken) {
-      return toast.error('Google Token not found.');
-    }
-  
-    try {
-      const response = await graphqlClient.request(
-        verifyUserGoogleTokenQuery,
-        { token: googleToken }
-      );
-  
-      const { verifyGoogleToken } = response;
-  
-  
-      if (verifyGoogleToken)
-      {
-      console.log(verifyGoogleToken); // Debug the token value here
-        window.localStorage.setItem("twitter_token", verifyGoogleToken);
-        console.log(window.localStorage.getItem("twitter_token")); 
-        toast.success("Verified successfully!");
-      } else {
-        toast.error("Token verification failed. Server returned null.");
-      }
-    } catch (error) {
-      console.error("Error verifying Google token:", error);
-      toast.error("An error occurred while verifying the token.");
-    }
-  }, []);
-
 
   const handleSelectImage = useCallback(() => {
     const input = document.createElement("input"); 
@@ -135,7 +106,7 @@ export default function Home() {
           </div>
         <div >
           { 
-           tweets?.map((tweet : Tweet)  => tweet ?  <FeedCard key={tweet.id} data={tweet} /> : null) 
+           props.tweets?.map((tweet : Tweet)  => tweet ?  <FeedCard key={tweet.id} data={tweet} /> : null) 
           }
       </div>
       </TwitterLayout>
@@ -143,4 +114,13 @@ export default function Home() {
 
 
   );
+}
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (context) => {
+  const allTweets = await graphqlClient.request<GetAllTweets>(getAllTweetQuery); 
+  return {
+    props :  {
+      tweets: allTweets.getAllTweets as Tweet[] , 
+    }
+  }
 }

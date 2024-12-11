@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { BsTwitter } from "react-icons/bs";
 import { CiBookmark, CiCircleMore, CiSearch } from "react-icons/ci";
 import { IoIosHome, IoMdNotificationsOutline } from "react-icons/io";
@@ -11,6 +11,7 @@ import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { graphqlClient } from "@/clients/api";
 import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { Inter } from "next/font/google";
+import Link from "next/link";
 
 
 const inter = Inter({ subsets: ["latin"] }); 
@@ -20,44 +21,10 @@ interface TwitterLayoutProps {
 }
 interface TwitterSideBarButton {
     title: string;
-    icon: React.ReactNode;
+  icon: React.ReactNode;
+  link: string;
   }
 
-const sideBarMenuItems: TwitterSideBarButton[] = [
-    {
-      title: "Home",
-      icon: <IoIosHome />,
-    },
-    {
-      title: "Explore",
-      icon: <CiSearch />
-      ,
-    },
-    {
-      title: "Notifications",
-      icon: <IoMdNotificationsOutline />
-      ,
-    },
-    {
-      title: "Messages",
-      icon:<MdOutlineEmail />,
-    },
-    {
-      title: "Bookmarks",
-      icon: <CiBookmark />,
-    },
-    {
-      title: "Profile",
-      icon: <IoPersonOutline />
-      ,
-    },
-    {
-      title: "More",
-      icon: <CiCircleMore />
-  ,
-    },
-  
-  ];
 
   const TwitterLayout: React.FC<TwitterLayoutProps> = (props) => {
     const { user } = useCurrentUser ();
@@ -89,6 +56,46 @@ const sideBarMenuItems: TwitterSideBarButton[] = [
             toast.error("An error occurred while verifying the token.");
         }
     }, []);
+
+    const sideBarMenuItems: TwitterSideBarButton[] = useMemo(() => [
+      {
+        title: "Home",
+        icon: <IoIosHome />,
+        link : "/"
+      },
+      {
+        title: "Explore",
+        icon: <CiSearch />,
+        link : "/"
+      },
+      {
+        title: "Notifications",
+        icon: <IoMdNotificationsOutline />,
+        link : "/"
+      },
+      {
+        title: "Messages",
+        icon: <MdOutlineEmail />,
+        link : "/"
+      },
+      {
+        title: "Bookmarks",
+        icon: <CiBookmark />,
+        link : "/"
+      },
+      {
+        title: "Profile",
+        icon: <IoPersonOutline />,
+        link : `/${user?.id}`
+
+      },
+      {
+        title: "More",
+        icon: <CiCircleMore />,
+        link : "/"
+      },
+    
+    ] , [user?.id]);
     
     return (
         <div className="grid grid-cols-12">
@@ -100,13 +107,11 @@ const sideBarMenuItems: TwitterSideBarButton[] = [
           <div className="mt-5 text-[20px] flex flex-col align-top ">
             <ul className="py-2">
               {sideBarMenuItems.map((item) => (
-                <li
-                  key={item.title}
-                  className="flex justify-start w-fit items-center gap-5 pr-4 py-2 hover:bg-gray-900 rounded-full transition"
-                >
-                  <span className="text-2xl">{item.icon}</span>
-                  <span className="mr-2 hover:font-semibold cursor-pointer">{item.title}</span>
-                </li>
+                  <Link href={item.link} key={item.title}
+                    className="flex justify-start w-fit items-center gap-5 pr-4 py-2 hover:bg-gray-900 rounded-full transition">
+                      <span className="text-2xl">{item.icon}</span>
+                      <span className="mr-2 hover:font-semibold cursor-pointer">{item.title}</span>
+                  </Link>
               ))}
             </ul>
             <div className="rounded-full bg-blue-500 text-center mr-12 mt-7">
