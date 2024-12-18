@@ -13,7 +13,6 @@ import { verifyUserGoogleTokenQuery } from "@/graphql/query/user";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 
-
 const inter = Inter({ subsets: ["latin"] }); 
 
 interface TwitterLayoutProps {
@@ -134,12 +133,19 @@ interface TwitterSideBarButton {
             </main>
             <aside className="h-screen sticky top-0 col-span-3">
       <div className=" border-l-[1px] p-5 ">
-          { (
+          { !user ? (
                   <div className="bg-slate-900 p-5 flex flex-col items-start space-y-4 runded-full">
                   <h2 className="text-[20px] font-semibold">New To Twitter ?</h2>
                   <GoogleLogin onSuccess={handleLoginWithGoogle}></GoogleLogin>
                     </div>
-            )
+            ) : (<div className="w-full bg-slate-900 flex flex-col justify-start gap-2 rounded-lg">
+                <p className=" border-b-2 border-0 border-gray-800 p-2 font-bold text-[20px]"> User You may Know </p>
+                {
+                  user?.recommendedUsers?.map((el) => <div className="flex justify-start gap-5 items-center p-2"> {el?.profileImageURL && <Image src={el?.profileImageURL} alt="profile-image" width={60} height={60} className="rounded-full"></Image>}
+                    <div className="flex flex-col items-start text-gray-400 text-lg font-semibold"><p className="px-2">{el?.firstName} </p>
+                    <Link href={`/${el?.id}`} className="text-[10px] py-0 px-6 bg-white text-black uppercase rounded-full">view</Link></div></div>)
+                }
+            </div>)
           }
         </div>
         </aside>

@@ -6,7 +6,7 @@ export const useCurrentUser  = () => {
     const query = useQuery({
         queryKey: ['current-user'],
         queryFn : async () => {
-            const data = await graphqlClient.request<GetCurrentUserResponse>(getCurrentUserQuery);
+            const data = await graphqlClient.request(getCurrentUserQuery);
             return data;
         }
     });
