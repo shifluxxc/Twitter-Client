@@ -117,7 +117,7 @@ export default function Home(props : HomeProps) {
 }
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async (context) => {
-  const allTweets = await graphqlClient.request<GetAllTweets>(getAllTweetQuery); 
+  const allTweets = await graphqlClient.request(getAllTweetQuery); 
   return {
     props :  {
       tweets: allTweets.getAllTweets as Tweet[] , 
